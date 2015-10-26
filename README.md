@@ -14,3 +14,4 @@ capture.php is currently pretty poor. It does the job but needs a serious visual
 * add more data to the timelapse status file
 * look more awesomer
   
+Admittedly still geting used to Git.. but I'm on to something
