@@ -1,0 +1,25 @@
+#!/bin/bash
+# ffmepgCmd
+#
+# Jeremy Fernsler
+#  25 - Oct - 2015
+#
+# lanch an ffmpeg compression of an img sequence to a quicktime
+# then fire off a notifiation and cleanup python script
+#
+
+imgdir="$1"
+movname="$2"
+
+START=`date`
+
+ffmpeg -y -probesize 5000000 -f image2 -i "${imgdir}/imgseq_%04d.jpg" \
+  -c:v mjpeg -qscale:v 1 -pix_fmt yuvj422p -s 1920x1080 \
+  -r 30 "${imgdir}/${movname}".mov > /dev/null
+
+END=`date`
+
+echo Start: "$START"
+echo End: "$END"
+
+python ./uploadCleanup.py "$imgdir"/"$movname".mov "$imgdir"
