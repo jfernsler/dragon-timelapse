@@ -66,7 +66,7 @@ def doUpload( putfile, putlog ) :
   with open( "SFTP_log", "a" ) as logfile:
     logfile.write( "Upload completed on: %s\n" % time.strftime( '%Y-%m-%d %H:%M' ))
     logfile.write( "Upload dir list: \n" )
-    for items in sftp.listdir() :
+    for item in sftp.listdir() :
       logfile.write( item + "\n" )
     logfile.write( "Closing connection\n\n" )
   sftp.close()

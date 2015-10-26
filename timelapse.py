@@ -74,8 +74,9 @@ def checkStatus() :
 
   global STATUS
 
-  r = urllib2.urlopen( CMDURL ).read(1)
-
+  headers = { 'User-Agent' : 'Mozilla/5.0' }
+  request = urllib2.Request( CMDURL, None, headers )
+  r = urllib2.urlopen( request ).read(1)
   if r == "1" :
     STATUS = "START"
   else :
@@ -113,6 +114,7 @@ def runTimelapse() :
   i = 0
   lastTime = int( time.time() )
   tlstart = time.strftime('%Y-%m-%d %H:%M')
+  print "Capture beginning at: %s" % tlstart
 
   # capture until MAXCOUNT and then delete half and continue
   while STATUS is "START" :
@@ -133,6 +135,7 @@ def runTimelapse() :
       
   # get the end time for the timelapse
   tlend = time.strftime('%Y-%m-%d %H:%M')
+  print "Capture complete at: %s" % tlend
   #camera.close()
   # finish up.
   compressFiles( tlstart, tlend )
@@ -175,6 +178,7 @@ def initCamera() :
   camera.drc_strength = configSet['drc_strength']
   camera.shutterspeed = int( configSet['shutterspeed'] )
   camera.resolution = ( int( configSet['resX']), int( configSet['resY']) )
+  camera.vflip = configSet['vflip']
   camera.crop = (0.0, 0.0, 1.0, 1.0)
 
 
