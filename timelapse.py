@@ -29,14 +29,16 @@ CMDURL = "http://www.jfernsler.com/timelapse/tlstatus.txt"
 STATUS = "IDLE"
 CHECKINTERVAL = 10
 
-#set up file naming conventions
+# set up file naming conventions
 CWD = os.getcwd() # change this to static location
 DATENAME = str( int( time.time() ))
 IMGDIR = CWD + "/" + DATENAME 
 IMGNAME = "imgseq_"
 FORMAT = "jpg"
 
-#set up any other constants
+# set up any other constants
+# MAXSEQCOUNT of 1200 ensures a timelapse no longer than
+#   40 seconds at 30fps. 
 MAXSEQCOUNT = 1200
 DELAY = 0.5 
 
@@ -45,7 +47,6 @@ configSet = {}
 
 # initialize Raspi Camera
 camera = picamera.PiCamera()
-
 
 def main() :
   """ Main parses the optional argv and starts the process. 
@@ -104,13 +105,16 @@ def runTimelapse() :
   global DELAY
   
   if not os.path.exists( IMGDIR ):
-    print "making dir!"
     os.makedirs( IMGDIR )
     initCamera()
 
-  # capture until MAXCOUNT and then delete half and continue
+  # initialize looping var, initialize the url check interval
+  # grab the start time for the timelapse log
   i = 0
   lastTime = int( time.time() )
+  tlstart = time.strftime('%Y-%m-%d %H:%M')
+
+  # capture until MAXCOUNT and then delete half and continue
   while STATUS is "START" :
     if i <= MAXSEQCOUNT :
       time.sleep(DELAY)
@@ -127,15 +131,20 @@ def runTimelapse() :
       t.start()
       lastTime = int( time.time() )
       
+  # get the end time for the timelapse
+  tlend = time.strftime('%Y-%m-%d %H:%M')
   #camera.close()
   # finish up.
-  compressFiles( )
+  compressFiles( tlstart, tlend )
   waitToBegin()
 
 
 def initCamera() :
   """ initCamera reads an external config file for the camera and loads it
-  into a dictionary that is used to set the static camera settings """
+  into a dictionary that is used to set the static camera settings. 
+  This, I think can be better. Need to open a preview window, let
+  the image settle, then capture the settings from there to be 
+  used for the entirety. """
 
   global configSet
 
@@ -215,11 +224,12 @@ def renumberPics() :
   # send back the number to continue on
   return len( fname )
   
-def compressFiles( ) :
+def compressFiles( tlstart, tlend ) :
   """ compressFiles calls an external shell script to lanch
   an ffmpeg compression scheme on the img sequence. """
 
-  os.system( "./ffmpegCmd " + IMGDIR + " " + DATENAME + " &")
+  print "./ffmpegCmd %s %s \"%s\" \"%s\" &" % (IMGDIR, DATENAME, tlstart, tlend)
+  os.system( "./ffmpegCmd %s %s \"%s\" \"%s\" &" % (IMGDIR, DATENAME, tlstart, tlend) )
 
 if __name__ == "__main__" :
   main()

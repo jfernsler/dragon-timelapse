@@ -7,19 +7,38 @@
 # lanch an ffmpeg compression of an img sequence to a quicktime
 # then fire off a notifiation and cleanup python script
 #
+# Arguments:
+# 1: image directory
+# 2: movie name
+# 3: timelapse start time
+# 4: timelapse end time
+
 
 imgdir="$1"
 movname="$2"
+tlStart="$3"
+tlEnd="$4"
 
 START=`date`
 
-ffmpeg -y -probesize 5000000 -f image2 -i "${imgdir}/imgseq_%04d.jpg" \
+# ffmpeg command takes a directory of images named imgseq_xxxx.jpg and ensures their
+#   scale is set to 1920x1080 and then compresses them at 30fps using the motionjpg
+#   codec. 
+ffmpeg -v error -y -probesize 5000000 -f image2 -i "$imgdir"/imgseq_%04d.jpg \
   -c:v mjpeg -qscale:v 1 -pix_fmt yuvj422p -s 1920x1080 \
-  -r 30 "${imgdir}/${movname}".mov > /dev/null
+  -r 30 "$imgdir"/"$movname".mov > "$imgdir"/"$movname"_log.txt
 
 END=`date`
 
-echo Start: "$START"
-echo End: "$END"
+echo ""
+echo ""
+echo Movie: "$movname".mov compressed
+echo Capture S: "$tlStart" >> "$imgdir"/"$movname"_log.txt
+echo Capture E: "$tlEnd" >> "$imgdir"/"$movname"_log.txt
+echo Compression S: "$START" >> "$imgdir"/"$movname"_log.txt
+echo Compression E: "$END" >> "$imgdir"/"$movname"_log.txt
 
-python ./uploadCleanup.py "$imgdir"/"$movname".mov "$imgdir"
+# echo command for dbug
+# echo python ./uploadCleanup.py "$imgdir"/"$movname".mov "$imgdir" "$imgdir"/"$movname"_log.txt
+
+python ./uploadCleanup.py "$imgdir"/"$movname".mov "$imgdir" "$imgdir"/"$movname"_log.txt

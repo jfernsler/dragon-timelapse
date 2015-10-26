@@ -11,6 +11,7 @@
 # takes 2 arguments
 # 1. the file path
 # 2. the dir it resides in
+# 3. the log file for the movie
 #
 # requires server.config file
 
@@ -27,7 +28,7 @@ def main( args ) :
   """ just keeping the peace """
 
   getConfig()
-  doUpload( args[1] )
+  doUpload( args[1], args[3] )
   sendEmail( args[1] )
   cleanUp( args[2] )
 
@@ -49,7 +50,7 @@ def getConfig() :
   f.close
 
 
-def doUpload( putfile ) :
+def doUpload( putfile, putlog ) :
   """ use SFTP to upload the movie file 
   perhaps a log file in the future as well
 
@@ -59,6 +60,15 @@ def doUpload( putfile ) :
   sftp = pysftp.Connection( serverConfig['FTPSERVER'], username=serverConfig['USER'], password=serverConfig['PASS'] ) 
   sftp.cwd( serverConfig['FTPDIR'] )
   sftp.put( putfile )
+  sftp.put( putlog )
+  
+  # append logfile here just for records
+  with open( "SFTP_log", "a" ) as logfile:
+    logfile.write( "Upload completed on: %s\n" % time.strftime( '%Y-%m-%d %H:%M' ))
+    logfile.write( "Upload dir list: \n" )
+    for items in sftp.listdir() :
+      logfile.write( item + "\n" )
+    logfile.write( "Closing connection\n\n" )
   sftp.close()
 
 def sendEmail( filepath ) :
@@ -82,7 +92,6 @@ def cleanUp( path ) :
   """ Remove all files, then delete the dir """
 
   dirlist = os.listdir( path )
-
   for f in dirlist :
     os.remove(path + "/" + f)
   os.rmdir( path )
