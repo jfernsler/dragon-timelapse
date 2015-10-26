@@ -24,9 +24,9 @@ import threading
 import urllib2
 import picamera
 
-# set up email, ftp, and server vars
+# setup URL vars, update state and interval in seconds
 CMDURL = "http://www.jfernsler.com/timelapse/tlstatus.txt"
-STATUS = "IDLE"
+STATUS = "STOP"
 CHECKINTERVAL = 10
 
 # set up file naming conventions
@@ -136,7 +136,6 @@ def runTimelapse() :
   # get the end time for the timelapse
   tlend = time.strftime('%Y-%m-%d %H:%M')
   print "Capture complete at: %s" % tlend
-  #camera.close()
   # finish up.
   compressFiles( tlstart, tlend )
   waitToBegin()
@@ -145,16 +144,13 @@ def runTimelapse() :
 def initCamera() :
   """ initCamera reads an external config file for the camera and loads it
   into a dictionary that is used to set the static camera settings. 
-  This, I think can be better. Need to open a preview window, let
-  the image settle, then capture the settings from there to be 
-  used for the entirety. """
+  Camera opens it's shutter and settles into a few gain settings,
+  those are read and the process is locked to avoid flicker """
 
   global configSet
 
   f = open("cam.config", "r")
-
   l = f.readline()
-
   while l:
     l = l.strip( " \t\n" )
     data = l.split( ":", 1)
@@ -163,30 +159,29 @@ def initCamera() :
     l = f.readline()
   f.close
 
-  camera.sharpness = int( configSet['sharpness'] )
-  camera.contrast = int( configSet['contrast'] )
-  camera.brightness = int( configSet['brightness'] )
-  camera.saturation = int( configSet['saturation'] )
   camera.iso = int( configSet['iso'] )
-  camera.video_stabilization = configSet['video_stabilization']
-  camera.exposure_compensation = int(configSet['exposure_compensation'])
-  camera.exposure_mode = configSet['exposure_mode']
-  camera.meter_mode = configSet['meter_mode']
-  camera.awb_mode = configSet['awb_mode']
-  camera.image_effect = configSet['image_effect']
-  camera.rotation = int( configSet['rotation'] )
-  camera.drc_strength = configSet['drc_strength']
-  camera.shutterspeed = int( configSet['shutterspeed'] )
   camera.resolution = ( int( configSet['resX']), int( configSet['resY']) )
   camera.vflip = configSet['vflip']
+  
+  camera.sharpness = int( configSet['sharpness'] )
+  camera.drc_strength = configSet['drc_strength']
   camera.crop = (0.0, 0.0, 1.0, 1.0)
+
+  camera.start_preview()
+  time.sleep(2)
+  camera.shutter_speed = camera.exposure_speed
+  camera.exposure_mode = 'off'
+  g = camera.awb_gains
+  camera.awb_mode = 'off'
+  camera.awb_gains = g
+  camera.stop_preview()
 
 
 def takePhoto( num ) :
   """ Take a photo and add overlay information"""
 
   camera.annotate_background = picamera.Color('black')
-  camera.annotate_text_size = 32
+  camera.annotate_text_size = 16
   camera.annotate_text = dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
   camera.capture( IMGDIR + "/" + IMGNAME + "%04d." % num + FORMAT )
 

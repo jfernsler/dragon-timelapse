@@ -18,6 +18,7 @@
 import os
 import sys
 import time
+import string
 import smtplib
 import pysftp
 
@@ -72,21 +73,34 @@ def doUpload( putfile, putlog ) :
   sftp.close()
 
 def sendEmail( filepath ) :
-  """ send an email regarding the upload and time
-  Ideally this will get much more information """
+  """ send an email with the appropriate info. 
+  Email addresses, servers and passwords come from external config file.
+  Same file as sftp information. """
 
+  # Repeating some vars for clarity.
+  # To is comma seperated, so we need to bracket it later
+  emailto = serverConfig['EMAILTO']
+  emailfrom = serverConfig['EMAILUSER']
+  emailpass = serverConfig['EMAILPASS']
+  #dicePath = filepath.split("/")
+  subj = "Dragon Timelapse Upload Update!"
+  msg = "A new Movie has been uploaded!\n\n"
+  msg = msg + "Movie Name: " + filepath.split("/")[-1] + "\n"
+  msg = msg + "uploaded on " + time.strftime('%Y-%m-%d %H:%M')
+  msg = msg + "\nEnjoy!\n\n"
+  msg = msg + "Your Friend,\nDragon Timelapse\n"
+
+  body = string.join((
+    "From: %s" % emailfrom, 
+    "To: %s" % emailto, 
+    "Subject: %s" % subj, 
+    "", msg), "\r\n")
+  
   server = smtplib.SMTP( serverConfig['EMAILSMTP'], 587 )
   server.starttls()
-  server.login( serverConfig['EMAILUSER'], serverConfig['EMAILPASS'] )
-
-  dicePath = filepath.split("/")
-  msg = "a new movie has been uploaded!\n\n"
-  msg = msg + "Movie Name: " + dicePath[-1] + "\n"
-  msg = msg + "uploaded on " + time.strftime('%Y-%m-%d %H:%M')
-
-  server.sendmail(serverConfig['EMAILUSER'], serverConfig['EMAILTO'], msg)
+  server.login( emailfrom, emailpass )
+  server.sendmail( emailfrom, [emailto], body )
   server.quit()
-                    
 
 def cleanUp( path ) :
   """ Remove all files, then delete the dir """
