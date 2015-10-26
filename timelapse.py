@@ -228,7 +228,7 @@ def compressFiles( tlstart, tlend ) :
   """ compressFiles calls an external shell script to lanch
   an ffmpeg compression scheme on the img sequence. """
 
-  print "./ffmpegCmd %s %s \"%s\" \"%s\" &" % (IMGDIR, DATENAME, tlstart, tlend)
+  # print "./ffmpegCmd %s %s \"%s\" \"%s\" &" % (IMGDIR, DATENAME, tlstart, tlend)
   os.system( "./ffmpegCmd %s %s \"%s\" \"%s\" &" % (IMGDIR, DATENAME, tlstart, tlend) )
 
 if __name__ == "__main__" :
