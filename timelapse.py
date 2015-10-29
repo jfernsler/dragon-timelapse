@@ -16,18 +16,20 @@
 #
 # requires external cam.config file for now
 
-import os
-import sys
-import time
+import os, sys, time
 import datetime as dt
 import threading
 import urllib2
+import socket
+import error as SocketError
+import errno
 import picamera
 
 # setup URL vars, update state and interval in seconds
 CMDURL = "http://www.jfernsler.com/timelapse/tlstatus.txt"
 STATUS = "STOP"
 CHECKINTERVAL = 10
+BASEINTERVAL = CHECKINTERVAL
 
 # set up file naming conventions
 CWD = os.getcwd() # change this to static location
@@ -59,8 +61,12 @@ def main() :
   if argc is 1 :
     waitToBegin()
   elif argc is 2 :
-    MAXSEQCOUNT = int( sys.argv[1] )
-    waitToBegin()
+    MAXSEQCOUNT = sys.argv[1]
+    if MAXSEQCOUNT.isdigit() :
+      MAXSEQCOUNT = int( MAXSEQCOUNT )
+      waitToBegin()
+    else :
+      print "Usage: " + argv[0] + " [<max frame count>]"
   else :
     print "Usage: " + argv[0] + " [<max frame count>]"
   
@@ -73,10 +79,22 @@ def checkStatus() :
   Called from waitToBegin and runTimelapse"""
 
   global STATUS
+  global CHECKINTERVAL 
 
   headers = { 'User-Agent' : 'Mozilla/5.0' }
   request = urllib2.Request( CMDURL, None, headers )
-  r = urllib2.urlopen( request ).read(1)
+  # try to connect, if the connection is refused, try catching
+  # the error
+  try :
+    r = urllib2.urlopen( request ).read(1)
+    CHECKINTERVAL = BASEINTERVAL
+  except : 
+    CHECKINTERVAL = CHECKINTERVAL * 5
+  #except SocketError as e:
+  #  if e.errno != errno.ECONNRESET:
+  #    raise # Not error we are looking for
+  #  pass # Handle error here.
+
   if r == "1" :
     STATUS = "START"
   else :
@@ -89,10 +107,15 @@ def waitToBegin() :
   it sets everything in in motion
   Called from main and runTimelapse"""
 
+  lastTime = int( time.time() )
+
   while STATUS is not "START" :
-    time.sleep(5)
-    checkStatus()
-    print "Status result is: ", STATUS
+    # launch thread to check status if it's been long enough
+    if int( time.time() ) - lastTime > CHECKINTERVAL :
+      t = threading.Thread( target = checkStatus )
+      t.daemon = True
+      t.start()
+      lastTime = int( time.time() )
   
   if STATUS is "START" :
     runTimelapse()
