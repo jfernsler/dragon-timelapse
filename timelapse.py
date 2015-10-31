@@ -20,9 +20,6 @@ import os, sys, time
 import datetime as dt
 import threading
 import urllib2
-import socket
-import error as SocketError
-import errno
 import picamera
 
 # setup URL vars, update state and interval in seconds
@@ -33,8 +30,8 @@ BASEINTERVAL = CHECKINTERVAL
 
 # set up file naming conventions
 CWD = os.getcwd() # change this to static location
-DATENAME = str( int( time.time() ))
-IMGDIR = CWD + "/" + DATENAME 
+MOVNAME = ""
+IMGDIR = ""
 IMGNAME = "imgseq_"
 FORMAT = "jpg"
 
@@ -88,17 +85,15 @@ def checkStatus() :
   try :
     r = urllib2.urlopen( request ).read(1)
     CHECKINTERVAL = BASEINTERVAL
+    if r == "1" :
+      STATUS = "START"
+    else :
+      STATUS = "STOP"
   except : 
     CHECKINTERVAL = CHECKINTERVAL * 5
-  #except SocketError as e:
-  #  if e.errno != errno.ECONNRESET:
-  #    raise # Not error we are looking for
-  #  pass # Handle error here.
+    print "long delay: reset"
 
-  if r == "1" :
-    STATUS = "START"
-  else :
-    STATUS = "STOP"
+  print STATUS
 
 
 def waitToBegin() :
@@ -116,9 +111,17 @@ def waitToBegin() :
       t.daemon = True
       t.start()
       lastTime = int( time.time() )
-  
+    time.sleep( 10 )
+
   if STATUS is "START" :
     runTimelapse()
+
+def setNames() :
+  global MOVNAME
+  global IMGDIR
+
+  MOVNAME = str( int( time.time() ))
+  IMGDIR = CWD + "/" + MOVNAME 
 
 def runTimelapse() :
   """ The actual capturing meat and potatoes. Once initiated,
@@ -126,8 +129,11 @@ def runTimelapse() :
   Once status has been changed to stop, it initiates the rest of the actions. """
 
   global STATUS
-  global DELAY
   
+  setNames()
+
+  captureDelay = DELAY
+
   if not os.path.exists( IMGDIR ):
     os.makedirs( IMGDIR )
     initCamera()
@@ -141,13 +147,13 @@ def runTimelapse() :
 
   # capture until MAXCOUNT and then delete half and continue
   while STATUS is "START" :
-    if i <= MAXSEQCOUNT :
-      time.sleep(DELAY)
+    if i >= MAXSEQCOUNT :
+      time.sleep( captureDelay )
       takePhoto( i )
       i = i + 1
     else :
       i = removeEvenPics()
-      DELAY = DELAY * 2
+      captureDelay = captureDelay * 2
 
     # launch thread to check status if it's been long enough
     if int( time.time() ) - lastTime > CHECKINTERVAL :
@@ -250,8 +256,8 @@ def compressFiles( tlstart, tlend ) :
   """ compressFiles calls an external shell script to lanch
   an ffmpeg compression scheme on the img sequence. """
 
-  # print "./ffmpegCmd %s %s \"%s\" \"%s\" &" % (IMGDIR, DATENAME, tlstart, tlend)
-  os.system( "./ffmpegCmd %s %s \"%s\" \"%s\" &" % (IMGDIR, DATENAME, tlstart, tlend) )
+  # print "./ffmpegCmd %s %s \"%s\" \"%s\" &" % (IMGDIR, MOVNAME, tlstart, tlend)
+  os.system( "./ffmpegCmd %s %s \"%s\" \"%s\" &" % (IMGDIR, MOVNAME, tlstart, tlend) )
 
 if __name__ == "__main__" :
   main()
