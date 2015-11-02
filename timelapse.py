@@ -2,7 +2,7 @@
 # timelapse.py
 #
 # Jeremy Fernsler
-#   25 - Oct - 2015
+#   1 - Nov - 2015
 #
 # Dynamic timelapse capture program
 # begins with .5 second captures and after 1200 captures
@@ -14,7 +14,8 @@
 # movie is uploaded via sftp, directories are cleaned up
 # and an email notification is sent out (external python program)
 #
-# requires external cam.config file for now
+# requires picamera to be installed
+# requires external cam.config file
 
 import os, sys, time
 import datetime as dt
@@ -192,15 +193,17 @@ def initCamera() :
     l = f.readline()
   f.close
 
+  # set some of the things we can definately lock down.
   camera.iso = int( configSet['iso'] )
   camera.resolution = ( int( configSet['resX']), int( configSet['resY']) )
   camera.vflip = configSet['vflip']
   camera.hflip = configSet['hflip']
-  
   camera.sharpness = int( configSet['sharpness'] )
   camera.drc_strength = configSet['drc_strength']
   camera.crop = (0.0, 0.0, 1.0, 1.0)
 
+  # open up the camera shutter and let the more dynamic settings
+  #  settle into place for the current conditions before locking them.
   camera.start_preview()
   time.sleep(2)
   camera.shutter_speed = camera.exposure_speed
