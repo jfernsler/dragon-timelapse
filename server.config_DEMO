@@ -1,0 +1,8 @@
+FTPSERVER:some.place.com
+FTPDIR:/your/remote/dir
+USER:username
+PASS:yourpassword
+EMAILSMTP:smtp.gmail.com
+EMAILUSER:workswith@gmail.com
+EMAILPASS:anotherpassword
+EMAILTO:whoshouldknow@email.com
