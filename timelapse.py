@@ -210,7 +210,7 @@ def initCamera() :
   f.close
 
   # set some of the things we can definately lock down.
-  camera.iso = int( configSet['iso'] )
+  #camera.iso = int( configSet['iso'] )
   camera.resolution = ( int( configSet['resX']), int( configSet['resY']) )
   camera.vflip = configSet['vflip']
   camera.hflip = configSet['hflip']
