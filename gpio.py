@@ -55,6 +55,21 @@ def changeMode( mode ) :
     GPIO.output( 13, False )
   elif mode == 'NOTREADY' :
     GPIO.output( 11, False )
+  elif mode == 'Q' :
+    ready = GPIO.input(11)
+    capture = GPIO.input(13)
+    compress = GPIO.input(15)
+    print "Ready: %d  Capture: %d  Compress: %d" % ( ready, capture, compress )
+  elif mode == 'HEARTBEAT' :
+    ready = GPIO.input(11)
+    capture = GPIO.input(13)
+    compress = GPIO.input(15)
+
+    cyclefun()
+
+    GPIO.output( 11, ready )
+    GPIO.output( 13, capture )
+    GPIO.output( 15, compress )
 
 def cyclefun() :
   """ this just does a quick cycle animation on the lights

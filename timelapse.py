@@ -30,6 +30,10 @@ STATUS = "STOP"
 CHECKINTERVAL = 10
 BASEINTERVAL = CHECKINTERVAL
 
+# set up a time interval for a basic heartbeat check
+#   if the LEDs don't cycle after this period, something is wrong
+HEARTINTERVAL = 120
+
 # set up file naming conventions
 CWD = os.getcwd() # change this to static location
 MOVNAME = ""
@@ -105,6 +109,7 @@ def waitToBegin() :
   Called from main and runTimelapse"""
 
   lastTime = int( time.time() )
+  hbTime = lastTime
 
   while STATUS is not "START" :
     # launch thread to check status if it's been long enough
@@ -113,6 +118,9 @@ def waitToBegin() :
       t.daemon = True
       t.start()
       lastTime = int( time.time() )
+    if int( tim.time() ) - hbTime > HEARTINTERVAL : 
+      os.popen( "sudo python ./gpio.py HEARTBEAT" )
+      hbTime = int( time.time() )
     time.sleep( 10 )
 
   if STATUS is "START" :
