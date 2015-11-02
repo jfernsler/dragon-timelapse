@@ -116,7 +116,11 @@ def waitToBegin() :
   if STATUS is "START" :
     runTimelapse()
 
-def setNames() :
+def setNames( ) :
+  """ a function to set the names of the movie and the capture directory.
+  Sets the name to epoch time. Perhaps in the future this name will be 
+  captured from the STATUS file which is read remotely """
+
   global MOVNAME
   global IMGDIR
 
@@ -191,6 +195,7 @@ def initCamera() :
   camera.iso = int( configSet['iso'] )
   camera.resolution = ( int( configSet['resX']), int( configSet['resY']) )
   camera.vflip = configSet['vflip']
+  camera.hflip = configSet['hflip']
   
   camera.sharpness = int( configSet['sharpness'] )
   camera.drc_strength = configSet['drc_strength']

@@ -24,6 +24,7 @@ START=`date`
 # ffmpeg command takes a directory of images named imgseq_xxxx.jpg and ensures their
 #   scale is set to 1920x1080 and then compresses them at 30fps using the motionjpg
 #   codec. 
+# set verbose to error to suppress output
 ffmpeg -v error -y -probesize 5000000 -f image2 -i "$imgdir"/imgseq_%04d.jpg \
   -c:v mjpeg -qscale:v 1 -pix_fmt yuvj422p -s 1920x1080 \
   -r 30 "$imgdir"/"$movname".mov > "$imgdir"/"$movname"_log.txt
