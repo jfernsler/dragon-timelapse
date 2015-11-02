@@ -42,8 +42,6 @@ FORMAT = "jpg"
 MAXSEQCOUNT = 1200
 DELAY = 0.5 
 
-# initialize a dictonary for camera configuration vars
-configSet = {}
 
 # initialize Raspi Camera
 camera = picamera.PiCamera()
@@ -134,14 +132,15 @@ def runTimelapse() :
   Once status has been changed to stop, it initiates the rest of the actions. """
 
   global STATUS
+
+  captureDelay = DELAY
   
   setNames()
 
-  captureDelay = DELAY
-
   if not os.path.exists( IMGDIR ):
     os.makedirs( IMGDIR )
-    initCamera()
+
+  shutSpeed = initCamera()
 
   # initialize looping var, initialize the url check interval
   # grab the start time for the timelapse log
@@ -152,12 +151,13 @@ def runTimelapse() :
 
   # capture until MAXCOUNT and then delete half and continue
   while STATUS is "START" :
-    if i >= MAXSEQCOUNT :
+    if i <= MAXSEQCOUNT :
       time.sleep( captureDelay )
-      takePhoto( i )
+      takePhoto( i, captureDelay )
       i = i + 1
     else :
       i = removeEvenPics()
+      #shutSpeed = shutSpeed / 2
       captureDelay = captureDelay * 2
 
     # launch thread to check status if it's been long enough
@@ -169,7 +169,7 @@ def runTimelapse() :
       
   # get the end time for the timelapse
   tlend = time.strftime('%Y-%m-%d %H:%M')
-  print "Capture complete at: %s" % tlend
+  print "Capture complete at: " + tlend
   # finish up.
   compressFiles( tlstart, tlend )
   waitToBegin()
@@ -181,7 +181,8 @@ def initCamera() :
   Camera opens it's shutter and settles into a few gain settings,
   those are read and the process is locked to avoid flicker """
 
-  global configSet
+  # initialize a dictonary for camera configuration vars
+  configSet = {}
 
   f = open("cam.config", "r")
   l = f.readline()
@@ -213,13 +214,16 @@ def initCamera() :
   camera.awb_gains = g
   camera.stop_preview()
 
+  return camera.shutter_speed
 
-def takePhoto( num ) :
+
+def takePhoto( num, delay ) :
   """ Take a photo and add overlay information"""
 
   camera.annotate_background = picamera.Color('black')
   camera.annotate_text_size = 16
-  camera.annotate_text = dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+  annText = MOVNAME + " : " + dt.datetime.now().strftime('%m-%d-%Y %H:%M:%S') + " -- Delay: %.2f" % delay
+  camera.annotate_text = annText
   camera.capture( IMGDIR + "/" + IMGNAME + "%04d." % num + FORMAT )
 
 def removeEvenPics() :
