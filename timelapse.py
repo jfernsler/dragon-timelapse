@@ -118,7 +118,7 @@ def waitToBegin() :
       t.daemon = True
       t.start()
       lastTime = int( time.time() )
-    if int( tim.time() ) - hbTime > HEARTINTERVAL : 
+    if int( time.time() ) - hbTime > HEARTINTERVAL : 
       os.popen( "sudo python ./gpio.py HEARTBEAT" )
       hbTime = int( time.time() )
     time.sleep( 10 )
