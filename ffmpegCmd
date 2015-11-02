@@ -21,6 +21,9 @@ tlEnd="$4"
 
 START=`date`
 
+# set the notification LED
+sudo python ./gpio.py COMPRESS 
+
 # ffmpeg command takes a directory of images named imgseq_xxxx.jpg and ensures their
 #   scale is set to 1920x1080 and then compresses them at 30fps using the motionjpg
 #   codec. 
@@ -38,6 +41,9 @@ echo Capture S: "$tlStart" >> "$imgdir"/"$movname"_log.txt
 echo Capture E: "$tlEnd" >> "$imgdir"/"$movname"_log.txt
 echo Compression S: "$START" >> "$imgdir"/"$movname"_log.txt
 echo Compression E: "$END" >> "$imgdir"/"$movname"_log.txt
+
+# set the notification LED
+sudo python ./gpio.py COMPRESSCOMPLETE 
 
 # echo command for dbug
 # echo python ./uploadCleanup.py "$imgdir"/"$movname".mov "$imgdir" "$imgdir"/"$movname"_log.txt

@@ -18,6 +18,7 @@
 # requires external cam.config file
 
 import os, sys, time
+from subprocess import call
 import datetime as dt
 import threading
 import urllib2
@@ -55,11 +56,13 @@ def main() :
   argc = len( sys.argv )
 
   if argc is 1 :
+    os.popen( "sudo python ./gpio.py READY" )
     waitToBegin()
   elif argc is 2 :
     MAXSEQCOUNT = sys.argv[1]
     if MAXSEQCOUNT.isdigit() :
       MAXSEQCOUNT = int( MAXSEQCOUNT )
+      os.popen( "sudo python ./gpio.py READY" )
       waitToBegin()
     else :
       print "Usage: " + argv[0] + " [<max frame count>]"
@@ -142,6 +145,8 @@ def runTimelapse() :
 
   shutSpeed = initCamera()
 
+  os.popen( "sudo python ./gpio.py CAPTURE" )
+
   # initialize looping var, initialize the url check interval
   # grab the start time for the timelapse log
   i = 0
@@ -167,6 +172,8 @@ def runTimelapse() :
       t.start()
       lastTime = int( time.time() )
       
+  os.popen( "sudo python ./gpio.py CAPTURECOMPLETE" )
+
   # get the end time for the timelapse
   tlend = time.strftime('%Y-%m-%d %H:%M')
   print "Capture complete at: " + tlend
