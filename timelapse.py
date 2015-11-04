@@ -241,8 +241,9 @@ def takePhoto( num, delay ) :
   camera.annotate_text = annText
   camera.capture( IMGDIR + "/" + IMGNAME + "%04d." % num + FORMAT )
 
-def removeEvenPics() :
-  """ remove every other image from a directory """
+def removeEvenPics() :  
+  """ get a file list, sort it. Remove every other one and 
+  renumber the others to maintain an unbroken sequence """
 
   fname = []
   
@@ -252,33 +253,21 @@ def removeEvenPics() :
 
   fname.sort()
 
+  # walk through the files, remove, rename...
+  j = 0
   for i in range( len( fname )):
+    curFile = IMGDIR + "/" + fname[ i ]
     if i % 2 == 0:
-      os.remove( IMGDIR + "/" + fname[ i ])
+      os.remove( curFile )
+    else :
+      newFile = IMGDIR + "/" + IMGNAME + "%04d." % i + FORMAT 
+      os.rename ( curFile, newFile )
+      j = j + 1
 
-  return renumberPics()
+
+  return j
 
 
-def renumberPics() :
-  """ Grab all the images in a directory, sort them and
-      renumber them to keep them sequential"""
-
-  fname = []
-
-  for (dirpath, dirnames, filenames) in os.walk(IMGDIR):
-    fname.extend(filenames)
-    break
-
-  fname.sort()
-
-  for i in range( len( fname )):
-    oldFile = IMGDIR + "/" + fname[ i ]
-    newFile = IMGDIR + "/" + IMGNAME + "%04d." % i + FORMAT
-    os.rename ( oldFile, newFile )
-
-  # send back the number to continue on
-  return len( fname )
-  
 def compressFiles( tlstart, tlend ) :
   """ compressFiles calls an external shell script to lanch
   an ffmpeg compression scheme on the img sequence. """
