@@ -1,5 +1,5 @@
 ##<center>Dragon Timelapse</center>
-<center>Project update: 2-Nov-2015</center>
+<center>Project update: 4-Nov-2015</center>
 <center>Jeremy Fernsler</center>
 
 ***
@@ -114,9 +114,8 @@ Code can be found at:
 		* captures image w/ passed number
 	* removeEvenPics()
 		* combs through capture directory and deletes every other image
-		* calls renumberPics()
-	* renumberPics()
-		* combs though capture directory and re-sequences image numbers
+    * renumbers other images to maintain an unbroken sequence.
+      * this keeps FFMPEG happy
 	* compressFiles()
 		* takes logged start stop data and image directory and passes it to the ffmpegCmd shell script with a system call.
 * **ffmpegCmd** : retains the FFMPEG compression command, generates a log file of the activity. 
