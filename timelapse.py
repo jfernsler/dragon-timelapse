@@ -186,7 +186,7 @@ def runTimelapse() :
   tlend = time.strftime('%Y-%m-%d %H:%M')
   print "Capture complete at: " + tlend
   # finish up.
-  compressFiles( tlstart, tlend )
+  compressFiles( tlstart, tlend, i )
   waitToBegin()
 
 
@@ -264,16 +264,15 @@ def removeEvenPics() :
       os.rename ( curFile, newFile )
       j = j + 1
 
-
   return j
 
 
-def compressFiles( tlstart, tlend ) :
+def compressFiles( tlstart, tlend, i ) :
   """ compressFiles calls an external shell script to lanch
   an ffmpeg compression scheme on the img sequence. """
 
   # print "./ffmpegCmd %s %s \"%s\" \"%s\" &" % (IMGDIR, MOVNAME, tlstart, tlend)
-  os.system( "./ffmpegCmd %s %s \"%s\" \"%s\" &" % (IMGDIR, MOVNAME, tlstart, tlend) )
+  os.system( "./ffmpegCmd %s %s \"%s\" \"%s\" %d &" % (IMGDIR, MOVNAME, tlstart, tlend, i ) )
 
 if __name__ == "__main__" :
   main()

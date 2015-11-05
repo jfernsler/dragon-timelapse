@@ -18,6 +18,7 @@ imgdir="$1"
 movname="$2"
 tlStart="$3"
 tlEnd="$4"
+frCount="$5"
 
 START=`date`
 
@@ -37,6 +38,7 @@ END=`date`
 echo ""
 echo ""
 echo Movie: "$movname".mov compressed
+echo Framecount: "$5" frames
 echo Capture S: "$tlStart" >> "$imgdir"/"$movname"_log.txt
 echo Capture E: "$tlEnd" >> "$imgdir"/"$movname"_log.txt
 echo Compression S: "$START" >> "$imgdir"/"$movname"_log.txt
