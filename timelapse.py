@@ -211,11 +211,11 @@ def initCamera() :
 
   # set some of the things we can definately lock down.
   #camera.iso = int( configSet['iso'] )
-  camera.resolution = ( int( configSet['resX']), int( configSet['resY']) )
+  #camera.resolution = ( int( configSet['resX']), int( configSet['resY']) )
   camera.vflip = configSet['vflip']
   camera.hflip = configSet['hflip']
-  camera.sharpness = int( configSet['sharpness'] )
-  camera.drc_strength = configSet['drc_strength']
+  #camera.sharpness = int( configSet['sharpness'] )
+  #camera.drc_strength = configSet['drc_strength']
   camera.crop = (0.0, 0.0, 1.0, 1.0)
 
   # open up the camera shutter and let the more dynamic settings
@@ -260,7 +260,7 @@ def removeEvenPics() :
     if i % 2 == 0:
       os.remove( curFile )
     else :
-      newFile = IMGDIR + "/" + IMGNAME + "%04d." % i + FORMAT 
+      newFile = IMGDIR + "/" + IMGNAME + "%04d." % j + FORMAT 
       os.rename ( curFile, newFile )
       j = j + 1
 
