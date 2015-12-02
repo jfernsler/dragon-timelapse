@@ -22,6 +22,7 @@ Here is a list of current programs and their languages and dependencies. Full de
 * **uploadCleanup.py** - *python*. Handles the SFTP upload, email status updates and directory cleanup.
 	* requires pysftp python package
 	* requires crypto python package
+* **sendIP.py** - *python*. Emails a message containing the current IP address.
 * **gpio.py** - *python*. Handles general purpose i/o tasks dealing with LEDs
 * **capture.php** - *php*. Simple script that can alter a server side file
 * **cam.config** - colon separated config file for static camera settings
@@ -60,8 +61,9 @@ Code can be found at:
 	* Right now it’s very bare bones with a simple start / stop. The server side of things happens with a PHP script simply modifying a text file
 	* I am working with someone in Interactive Digital Media to code up a more interesting page for their students to use. 
 * Launch on startup.
-	* **Not complete**.
-	* This will be the last item to happen after things are running smoothly
+	* **This is working**.
+  * Using cron to auto launch the script after a reboot
+  * There is a new addition to email the IP address on startup as well since moving the device to a new port will automatically introduce a new IP.
 * Blinky Lights
 	* **This is working**
 	* Each state in the process is represented by a light:
@@ -140,6 +142,17 @@ Code can be found at:
 	* cleanUp()
 		* deletes all image files and movie file
 		* removes directory
+* **sendIP.py** : Emails a message containing the current IP address
+  * main()
+    * sequentially calls getConfig() and sendIP()
+  * getIP()
+    * strips IP address out of a call to ifconfig
+  * getConfig()
+    * reads in external file with all servers, userIDs and passwords and generates a global dictionary file
+  * sendIP()
+    * initiates connection to the gmail SMTP server
+    * compiles a notification email containing IP address
+    * sends email to recipient listed in the server config file.
 * **gpio.py** : performs all GPIO related tasks
 	* Functions:
 	* main()
