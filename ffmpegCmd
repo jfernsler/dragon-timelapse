@@ -23,14 +23,14 @@ frCount="$5"
 START=`date`
 
 # set the notification LED
-sudo python ./gpio.py COMPRESS 
+sudo python /home/pi/dragon-timelapse/gpio.py COMPRESS 
 
 # ffmpeg command takes a directory of images named imgseq_xxxx.jpg and ensures their
 #   scale is set to 1920x1080 and then compresses them at 30fps using the motionjpg
 #   codec. 
 # set verbose to error to suppress output
-ffmpeg -v error -y -probesize 5000000 -f image2 -i "$imgdir"/imgseq_%04d.jpg \
-  -c:v mjpeg -qscale:v 1 -pix_fmt yuvj422p -s 1920x1080 \
+/usr/local/bin/ffmpeg -v error -y -probesize 5000000 -f image2 -i "$imgdir"/imgseq_%04d.jpg \
+  -c:v mjpeg -qscale:v 1 -pix_fmt yuvj422p -s 1920x1440 \
   -r 30 "$imgdir"/"$movname".mov > "$imgdir"/"$movname"_log.txt
 
 END=`date`
@@ -45,9 +45,9 @@ echo Compression S: "$START" >> "$imgdir"/"$movname"_log.txt
 echo Compression E: "$END" >> "$imgdir"/"$movname"_log.txt
 
 # set the notification LED
-sudo python ./gpio.py COMPRESSCOMPLETE 
+sudo python /home/pi/dragon-timelapse/gpio.py COMPRESSCOMPLETE 
 
 # echo command for dbug
 # echo python ./uploadCleanup.py "$imgdir"/"$movname".mov "$imgdir" "$imgdir"/"$movname"_log.txt
 
-python ./uploadCleanup.py "$imgdir"/"$movname".mov "$imgdir" "$imgdir"/"$movname"_log.txt
+python /home/pi/dragon-timelapse/uploadCleanup.py "$imgdir"/"$movname".mov "$imgdir" "$imgdir"/"$movname"_log.txt

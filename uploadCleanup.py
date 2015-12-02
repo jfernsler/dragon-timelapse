@@ -44,7 +44,7 @@ def getConfig() :
 
   global serverConfig
 
-  f = open("server.config", "r")
+  f = open("/home/pi/dragon-timelapse/server.config", "r")
   l = f.readline()
 
   while l :
@@ -56,8 +56,8 @@ def getConfig() :
 
 
 def mvMovie( mvfile, mvlog ) :
- shutil.move( mvfile, mvdir )
- shutil.move( mvlog, mvdir )
+  shutil.move( mvfile, mvdir )
+  shutil.move( mvlog, mvdir )
 
 
 

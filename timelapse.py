@@ -60,13 +60,14 @@ def main() :
   argc = len( sys.argv )
 
   if argc is 1 :
-    os.popen( "sudo python ./gpio.py READY" )
+    os.popen( "sudo python /home/pi/dragon-timelapse/sendIP.py" )
+    os.popen( "sudo python /home/pi/dragon-timelapse/gpio.py READY" )
     waitToBegin()
   elif argc is 2 :
     MAXSEQCOUNT = sys.argv[1]
     if MAXSEQCOUNT.isdigit() :
       MAXSEQCOUNT = int( MAXSEQCOUNT )
-      os.popen( "sudo python ./gpio.py READY" )
+      os.popen( "sudo python /home/pi/dragon-timelapse/gpio.py READY" )
       waitToBegin()
     else :
       print "Usage: " + argv[0] + " [<max frame count>]"
@@ -99,9 +100,6 @@ def checkStatus() :
     CHECKINTERVAL = CHECKINTERVAL * 5
     print "long delay: reset"
 
-  print STATUS
-
-
 def waitToBegin() :
   """ waitToBegin will sit in a loop, periodically asking
   check status to see if anything has changed. If it has, 
@@ -119,7 +117,7 @@ def waitToBegin() :
       t.start()
       lastTime = int( time.time() )
     if int( time.time() ) - hbTime > HEARTINTERVAL : 
-      os.popen( "sudo python ./gpio.py HEARTBEAT" )
+      os.popen( "sudo python /home/pi/dragon-timelapse/gpio.py HEARTBEAT" )
       hbTime = int( time.time() )
     time.sleep( 10 )
 
@@ -135,7 +133,7 @@ def setNames( ) :
   global IMGDIR
 
   MOVNAME = str( int( time.time() ))
-  IMGDIR = CWD + "/" + MOVNAME 
+  IMGDIR = "/home/pi/dragon-timelapse/" + MOVNAME 
 
 def runTimelapse() :
   """ The actual capturing meat and potatoes. Once initiated,
@@ -153,7 +151,7 @@ def runTimelapse() :
 
   shutSpeed = initCamera()
 
-  os.popen( "sudo python ./gpio.py CAPTURE" )
+  os.popen( "sudo python /home/pi/dragon-timelapse/gpio.py CAPTURE" )
 
   # initialize looping var, initialize the url check interval
   # grab the start time for the timelapse log
@@ -180,7 +178,7 @@ def runTimelapse() :
       t.start()
       lastTime = int( time.time() )
       
-  os.popen( "sudo python ./gpio.py CAPTURECOMPLETE" )
+  os.popen( "sudo python /home/pi/dragon-timelapse/gpio.py CAPTURECOMPLETE" )
 
   # get the end time for the timelapse
   tlend = time.strftime('%Y-%m-%d %H:%M')
@@ -199,7 +197,7 @@ def initCamera() :
   # initialize a dictonary for camera configuration vars
   configSet = {}
 
-  f = open("cam.config", "r")
+  f = open("/home/pi/dragon-timelapse/cam.config", "r")
   l = f.readline()
   while l:
     l = l.strip( " \t\n" )
@@ -211,7 +209,7 @@ def initCamera() :
 
   # set some of the things we can definately lock down.
   #camera.iso = int( configSet['iso'] )
-  #camera.resolution = ( int( configSet['resX']), int( configSet['resY']) )
+  camera.resolution = ( int( configSet['resX']), int( configSet['resY']) )
   camera.vflip = configSet['vflip']
   camera.hflip = configSet['hflip']
   #camera.sharpness = int( configSet['sharpness'] )
@@ -272,7 +270,7 @@ def compressFiles( tlstart, tlend, i ) :
   an ffmpeg compression scheme on the img sequence. """
 
   # print "./ffmpegCmd %s %s \"%s\" \"%s\" &" % (IMGDIR, MOVNAME, tlstart, tlend)
-  os.system( "./ffmpegCmd %s %s \"%s\" \"%s\" %d &" % (IMGDIR, MOVNAME, tlstart, tlend, i ) )
+  os.system( "/home/pi/dragon-timelapse/ffmpegCmd %s %s \"%s\" \"%s\" %d &" % (IMGDIR, MOVNAME, tlstart, tlend, i ) )
 
 if __name__ == "__main__" :
   main()
