@@ -5,7 +5,7 @@
 ***
 
 ####Project Description:
-Create a dynamic time-lapse capture system that automatically adapts to the time of a running capture and uploads a completed file to a repository and runs on a Raspberry Pi.
+Create a dynamic time-lapse capture system that automatically adapts to the time of a running capture and uploads a completed file to a repository and runs on a Raspberry Pi.  
 ![Raspberry PI, Raspbian, Python, FFMPEG, Bash](images/projlogos.png)  
 
 ***
