@@ -24,7 +24,8 @@ def main( args ) :
 
 
 def getIP() :
-  f = os.popen('ifconfig eth0 | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f1')
+  #f = os.popen('ifconfig eth0 | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f1')
+  f = os.popen('ifconfig eth0')
   return f.read()
 
 def getConfig() :
