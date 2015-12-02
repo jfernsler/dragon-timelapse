@@ -21,15 +21,19 @@ import time
 import string
 import smtplib
 import pysftp
+import shutil
 
 # create dictionary to hold all server, user and pass data
 serverConfig = {}
+
+mvdir = "/home/pi/Movies/"
 
 def main( args ) :
   """ just keeping the peace """
 
   getConfig()
   doUpload( args[1], args[3] )
+  #mvMovie( args[1], args[3] )
   sendEmail( args[1] )
   cleanUp( args[2] )
 
@@ -49,6 +53,12 @@ def getConfig() :
     serverConfig[ data[0] ] = data[1]
     l = f.readline()
   f.close
+
+
+def mvMovie( mvfile, mvlog ) :
+ shutil.move( mvfile, mvdir )
+ shutil.move( mvlog, mvdir )
+
 
 
 def doUpload( putfile, putlog ) :
@@ -105,9 +115,11 @@ def sendEmail( filepath ) :
 def cleanUp( path ) :
   """ Remove all files, then delete the dir """
 
-  dirlist = os.listdir( path )
-  for f in dirlist :
-    os.remove(path + "/" + f)
+  for root, dirs, files in os.walk( path, topdown=False ):
+    for name in files :
+      os.remove( os.path.join( root, name ))
+    for name in dirs :
+      os.rmdir( os.path.join( root, name ))
   os.rmdir( path )
 
   
